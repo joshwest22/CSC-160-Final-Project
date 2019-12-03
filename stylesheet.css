@@ -1,4 +1,20 @@
 body
 {
-    background-color: cornflowerblue;
+    background-color: azure;
+}
+#title
+{
+    text-align: center;
+}
+#infoPanel
+{
+    text-align: center;
+    border: 2px solid black;
+}
+.content
+{
+    display: inline-block;
+    text-align: left;
+    border: 2px solid black;
+    margin: 2px;
 }

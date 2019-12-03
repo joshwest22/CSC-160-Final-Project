@@ -3,29 +3,56 @@ var mapPromise = d3.json("data/us-states_5m.json");
 //Load in national employment data based on occupation
 //var csEmploymentPromise = ;
 //Load in state employment rates 2018-2020
-//var csShortTermPromise = d3.csv("data/CS Job Short Term Projections Data.csv");
+var csShortTermPromise = d3.csv("data/CS Job Short Term Projections Data.csv");
 //Load in state employment rates 2016-2026
-//var csLongTermPromise = d3.csv("data/CS Job Long Term Projections Data.csv");
+var csLongTermPromise = d3.csv("data/CS Job Long Term Projections Data.csv");
 //Load in national women's employment data
 //var womenPromise = ;
 //Load in national minorites' employment data
 //var minoritiesPromise = ;
 var popPromise = d3.csv("data/AlabamaPopulationData.csv"); //reduced the amount of data by A LOT
+Promise.all([mapPromise,popPromise,csShortTermPromise,csLongTermPromise]).then(function(values)
+{
+    var hash = {} //this is used for joining
+    //console.log("values", values)
+   
+    values[0].features.forEach(function(element)
+    {
+        hash[element.properties.NAME] = element;
+        //console.log(element)
+    })
+    //should bind the population data to the mapData, does it?
+    values[1].forEach(function(e2)
+    {
+        hash[e2.NAME].populationData = e2;
+        //console.log("NAME",e2.NAME)
+        //console.log("hash",hash)
+    })
+    //should join short term data to map and population
+    values[2].forEach(function(e3)
+    {
+        hash[e3.AreaName].shortTermData = e3;
+    })
+    //should join long term data to map and population and short term data  
+    
+},
+function(err){console.log("ERROR in Promise.all",err)})
 
 mapPromise.then(function(mapData)
 {
     console.log("map data working",mapData);
-    //setup(mapData); //don't load the map until the data is linked
+    setup(mapData); //don't load the map until the data is linked
    
 },
 function(err)
 {
     console.log("MAP DATA NOT LOADING PROPERLY", err);
 })
-var screen = {width:1800, height:800};
-var setup = function(mapData) // svg size, projection 
+
+var screen = {width:1920, height:1080};
+var setup = function(mapData) // setup deals with svg size, projection 
 {
-    var width = 1000;
+    var width = 1900;
     var height = 800;
     //Define projection
     var projection = d3.geoAlbersUsa().translate([width/2,height/2]).scale([1000]);
@@ -35,8 +62,9 @@ var setup = function(mapData) // svg size, projection
     var svg = d3.select("svg")
     .attr("width",screen.width)
     .attr("height",screen.height)
-    //bind data and create one path per GeoJSON feature
-     // Define path generator, using the albers USA projection
+    //Bind data and create one path per GeoJSON feature
+    
+    //Define path generator, using the albers USA projection
     var path = d3.geoPath(projection);
     
     svg.selectAll("path")
@@ -44,47 +72,65 @@ var setup = function(mapData) // svg size, projection
     .enter()
     .append("path")
     .attr("d",path)
-   
-        
+    
+    var colorShortTerm = d3.scaleQuantize()
+    .range(["rgb(237,248,233)","rgb(186,228,179)","rgb(116,196,118)","rgb(49,163,84)","rgb(0,109,44)"])
+    //long term color range
+    var colorLongTerm = d3.scaleQuantize()
+    .range(["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"])
 }   
 
 //draw pathgenerator and d3 core algorithm
 var drawMap = function() // this may be needed for added animations to the graph
 {
-    //d3 core algorithm
+    //d3 core algorithm; selectall the paths and rebind the data then animate
+    //short term color range
+    
 }
 
 popPromise.then(function(popData)
 {
     console.log("state population data working",popData);
-    getData(popData);
+    //getData(popData);
 },
-function(err){console.log("ERROR",err)})
+function(err){console.log("ERROR in popPromise",err)})
 
-var hash = {} //this will be used for joining in the future
+csShortTermPromise.then(function(shortTermData)
+{
+    console.log("short term data working",shortTermData);
+},
+function(err){console.log("ERROR in csShortTermPromise",err)})
+
+csLongTermPromise.then(function(longTermData)
+{
+    console.log("long term data working",longTermData);
+},
+function(err){console.log("ERROR in csLongTermPromise",err)})
+//MAKE A JOIN FUNCTION
 
 
 var getData = function(popData)
 {
+    //do i still need the states array or this getData function
     states = [{name: "Alabama", male: [], female: [], all: [], white: [], black: [], asian: [], multiracial: []}] //each array within each state object will need to be summed; I will also have to copy paste the Alabama object for each state
     popData.forEach(function(d)
     {
         console.log(d.POPESTIMATE2017);//used to check if AGE, SEX, POPESTIMATE2017 (Giving numbers, but not the correct ones for POPESTIMATE2017 and sometimes STATE)
         if(d.AGE == 40) //this is the average age of CS professionals according to https://datausa.io/profile/cip/computer-science-6
-            {if(d.SEX = 0)//
+            {if(d.SEX == 0)//
                 {states[d.STATE-1].all.push(d.POPESTIMATE2017)} //console log what each of these are
-//             if(d.SEX= 1)//male
-//                {states[d.STATE-1].male.push(d.POPESTIMATE2017)}
-//             if(d.SEX = 2)//female
-//                {states[d.STATE-1].female.push(d.POPESTIMATE2017)}
-//             if(d.RACE = 1)//white
-//                {states[d.STATE-1].white.push(d.POPESTIMATE2017)}
-//             if(d.RACE = 2)//black
-//                {states[d.STATE-1].black.push(d.POPESTIMATE2017)}
-//             if(d.RACE = 4)//asian
-//                {states[d.state-1].asian.push(d.POPESTIMATE2017)}
-//             if(d.RACE = 6) //two or more races
-//                {states[d.STATE-1].multiracial.push(d.POPESTIMATE2017)}
+             if(d.SEX== 1)//male
+                {states[d.STATE-1].male.push(d.POPESTIMATE2017)}
+             if(d.SEX == 2)//female
+                {states[d.STATE-1].female.push(d.POPESTIMATE2017)}
+             if(d.RACE == 1)//white
+                {states[d.STATE-1].white.push(d.POPESTIMATE2017)}
+             if(d.RACE == 2)//black
+                {states[d.STATE-1].black.push(d.POPESTIMATE2017)}
+             if(d.RACE == 4)//asian
+                {states[d.state-1].asian.push(d.POPESTIMATE2017)}
+             if(d.RACE == 6) //two or more races
+                {states[d.STATE-1].multiracial.push(d.POPESTIMATE2017)}
             }
     }) ;
     console.log(states)
