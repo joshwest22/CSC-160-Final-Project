@@ -13,28 +13,39 @@ var csLongTermPromise = d3.csv("data/CS Job Long Term Projections Data.csv");
 var popPromise = d3.csv("data/AlabamaPopulationData.csv"); //reduced the amount of data by A LOT
 Promise.all([mapPromise,popPromise,csShortTermPromise,csLongTermPromise]).then(function(values)
 {
-    var hash = {} //this is used for joining
-    //console.log("values", values)
-   
-    values[0].features.forEach(function(element)
+    var join = function()
     {
-        hash[element.properties.NAME] = element;
-        //console.log(element)
-    })
-    //should bind the population data to the mapData, does it?
-    values[1].forEach(function(e2)
-    {
-        hash[e2.NAME].populationData = e2;
-        //console.log("NAME",e2.NAME)
-        //console.log("hash",hash)
-    })
-    //should join short term data to map and population
-    values[2].forEach(function(e3)
-    {
-        hash[e3.AreaName].shortTermData = e3;
-    })
-    //should join long term data to map and population and short term data  
-    
+        var hash = {} //this is used for joining
+        //console.log("values", values)
+
+        values[0].features.forEach(function(element)
+        {
+            hash[element.properties.NAME] = element;
+            //console.log(element)
+        })
+        //should bind the population data to the mapData, does it?
+        values[1].forEach(function(e2)
+        {
+            hash[e2.NAME].populationData = e2;
+            //console.log("NAME",e2.NAME)
+            //console.log("hash",hash)
+        })
+        //should join short term data to map and population
+        values[2].forEach(function(e3) //this function isn't doing anything for some reason
+        {
+            hash[e3.AreaName].shortTermData = e3;
+            //console.log("hash",hash)
+        })
+        //should join long term data to map and population and short term data
+        values[3].forEach(function(e4)
+        {
+            //hash[e4.AreaName].longTermData = e4;//FIX ME this is throwing a weird error why??
+            //console.log("AreaName2", e4.AreaName)
+            //console.log("hash",hash)
+        })
+    }
+    join(); 
+    getData(values[1]);
 },
 function(err){console.log("ERROR in Promise.all",err)})
 
@@ -75,6 +86,40 @@ var setup = function(mapData) // setup deals with svg size, projection
     
     var colorShortTerm = d3.scaleQuantize()
     .range(["rgb(237,248,233)","rgb(186,228,179)","rgb(116,196,118)","rgb(49,163,84)","rgb(0,109,44)"])
+    .domain([
+        d3.min(mapData,function(d){return d.value}),
+        d3.max(mapData, function(d){return d.value})])
+    svg.selectAll("path")
+    .data(mapData.features)
+    .enter()
+    .append("path")
+    .attr("d", path)
+    .style("fill", function (d)
+        {
+        //Get data value    
+        var value = d.properties.value;
+        
+            if (value)
+                {return color(value)}
+            else {return "#ccc"}
+        })
+    //what should I be selecting to get data for hover on each state
+    svg.select("path")
+    .data(mapData)
+    .on("mouseover", function(d)
+        {
+        var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.bandwidth() / 2;
+        var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + height / 2;
+
+        //update the tooltip
+        d3.select("#tooltip")
+        .style("left", xPosition + "px")
+        .style("top", yPosition + "px")
+        .select("#value")
+        .text(d)
+        //show the tool tip
+        d3.select("#tooltip").classed("hidden", false);
+        })
     //long term color range
     var colorLongTerm = d3.scaleQuantize()
     .range(["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"])
@@ -112,26 +157,32 @@ function(err){console.log("ERROR in csLongTermPromise",err)})
 var getData = function(popData)
 {
     //do i still need the states array or this getData function
-    states = [{name: "Alabama", male: [], female: [], all: [], white: [], black: [], asian: [], multiracial: []}] //each array within each state object will need to be summed; I will also have to copy paste the Alabama object for each state
+    states = [{name: "Alabama", total: [], male: [], female: [], both: [], white: [], black: [], asian: [], multiracial: []}] //each array within each state object will need to be summed; I will also have to copy paste the Alabama object for each state
     popData.forEach(function(d)
     {
-        console.log(d.POPESTIMATE2017);//used to check if AGE, SEX, POPESTIMATE2017 (Giving numbers, but not the correct ones for POPESTIMATE2017 and sometimes STATE)
         if(d.AGE == 40) //this is the average age of CS professionals according to https://datausa.io/profile/cip/computer-science-6
-            {if(d.SEX == 0)//
-                {states[d.STATE-1].all.push(d.POPESTIMATE2017)} //console log what each of these are
-             if(d.SEX== 1)//male
-                {states[d.STATE-1].male.push(d.POPESTIMATE2017)}
-             if(d.SEX == 2)//female
-                {states[d.STATE-1].female.push(d.POPESTIMATE2017)}
-             if(d.RACE == 1)//white
-                {states[d.STATE-1].white.push(d.POPESTIMATE2017)}
-             if(d.RACE == 2)//black
-                {states[d.STATE-1].black.push(d.POPESTIMATE2017)}
-             if(d.RACE == 4)//asian
-                {states[d.state-1].asian.push(d.POPESTIMATE2017)}
-             if(d.RACE == 6) //two or more races
-                {states[d.STATE-1].multiracial.push(d.POPESTIMATE2017)}
+            {
+                totalAccumulator = 0;
+                if(typeof d != "undefined") //this isn't working. Is there a better way to check for undefined
+                    {
+                    if(d.RACE < 7)
+                        {totalAccumulator += d.POPESTIMATE2017; console.log("states",states);console.log("totalAccumulator", totalAccumulator);}
+                    if(d.SEX == 0)//both sexes
+                        {states[d.STATE-1].both.push(d.POPESTIMATE2017)} //console log what each of these are
+                    if(d.SEX == 1)//male
+                        {states[d.STATE-1].male.push(d.POPESTIMATE2017)}
+                    if(d.SEX == 2)//female
+                        {states[d.STATE-1].female.push(d.POPESTIMATE2017)}
+                    if(d.RACE == 1)//white
+                        {states[d.STATE-1].white.push(d.POPESTIMATE2017)}
+                    if(d.RACE == 2)//black
+                        {states[d.STATE-1].black.push(d.POPESTIMATE2017)}
+                    if(d.RACE == 4)//asian
+                        {states[d.state-1].asian.push(d.POPESTIMATE2017)} //this isn't working likely because not all data points represent asians
+                    if(d.RACE == 6) //two or more races;
+                        {states[d.STATE-1].multiracial.push(d.POPESTIMATE2017)} //nothing is being pushed. Maybe bc problem with asian if statement
+                    }
             }
     }) ;
-    console.log(states)
+    console.log(states);
 }
