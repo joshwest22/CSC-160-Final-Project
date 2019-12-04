@@ -163,25 +163,23 @@ var getData = function(popData)
         if(d.AGE == 40) //this is the average age of CS professionals according to https://datausa.io/profile/cip/computer-science-6
             {
                 totalAccumulator = 0;
-                if(typeof d != "undefined") //this isn't working. Is there a better way to check for undefined
-                    {
-                    if(d.RACE < 7)
-                        {totalAccumulator += d.POPESTIMATE2017; console.log("states",states);console.log("totalAccumulator", totalAccumulator);}
-                    if(d.SEX == 0)//both sexes
-                        {states[d.STATE-1].both.push(d.POPESTIMATE2017)} //console log what each of these are
-                    if(d.SEX == 1)//male
-                        {states[d.STATE-1].male.push(d.POPESTIMATE2017)}
-                    if(d.SEX == 2)//female
-                        {states[d.STATE-1].female.push(d.POPESTIMATE2017)}
-                    if(d.RACE == 1)//white
-                        {states[d.STATE-1].white.push(d.POPESTIMATE2017)}
-                    if(d.RACE == 2)//black
-                        {states[d.STATE-1].black.push(d.POPESTIMATE2017)}
-                    if(d.RACE == 4)//asian
-                        {states[d.state-1].asian.push(d.POPESTIMATE2017)} //this isn't working likely because not all data points represent asians
-                    if(d.RACE == 6) //two or more races;
-                        {states[d.STATE-1].multiracial.push(d.POPESTIMATE2017)} //nothing is being pushed. Maybe bc problem with asian if statement
-                    }
+    
+                if(d.RACE < 7)
+                    {totalAccumulator += d.POPESTIMATE2017; console.log("states",states);console.log("totalAccumulator", totalAccumulator);}
+                if(d.SEX == 0)//both sexes
+                    {states[d.STATE-1].both.push(d.POPESTIMATE2017)} //console log what each of these are
+                if(d.SEX == 1)//male
+                    {states[d.STATE-1].male.push(d.POPESTIMATE2017)}
+                if(d.SEX == 2)//female
+                    {states[d.STATE-1].female.push(d.POPESTIMATE2017)}
+                if(d.RACE == 1)//white
+                    {states[d.STATE-1].white.push(d.POPESTIMATE2017)}
+                if(d.RACE == 2)//black
+                    {states[d.STATE-1].black.push(d.POPESTIMATE2017)}
+                if(d.RACE == 4)//asian
+                    {states[d.STATE-1].asian.push(d.POPESTIMATE2017)} 
+                if(d.RACE == 6) //two or more races;
+                    {states[d.STATE-1].multiracial.push(d.POPESTIMATE2017)} //nothing is being pushed. Maybe bc problem with asian if statement
             }
     }) ;
     console.log(states);
