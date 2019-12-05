@@ -126,11 +126,11 @@ var setup = function(mapData) // setup deals with svg size, projection
     //hovers for divs
     d3.selectAll(".national ul").on("mouseover", function()
     {
-        d3.selectAll(".national ul").classed("hidden", false)
+        d3.selectAll(".national ul").classed("hidden", true)
     })
     d3.selectAll(".national ul").on("mouseout", function()
     {
-        d3.selectAll(".national ul").classed("hidden", true)
+        d3.selectAll(".national ul").classed("hidden", false)
     })
 }   
 
