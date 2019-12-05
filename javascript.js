@@ -124,7 +124,14 @@ var setup = function(mapData) // setup deals with svg size, projection
     var colorLongTerm = d3.scaleQuantize()
     .range(["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"])
     //hovers for divs
-    //d3.select()
+    d3.selectAll(".national ul").on("mouseover", function()
+    {
+        d3.selectAll(".national ul").classed("hidden", true)
+    })
+    d3.selectAll(".national ul").on("mouseout", function()
+    {
+        d3.selectAll(".national ul").classed("hidden", false)
+    })
 }   
 
 //draw pathgenerator and d3 core algorithm
