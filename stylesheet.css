@@ -10,12 +10,21 @@ body
 {
     text-align: center;
 }
+#infoPanel div
+{
+    float: left;
+}
 .content
 {
     display: inline-block;
     text-align: left;
     border: 2px solid black;
     padding: 8px;
+    font-size:16px;
+}
+.national
+{
+    
 }
 #tooltip
 {

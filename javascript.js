@@ -10,7 +10,7 @@ var csLongTermPromise = d3.csv("data/CS Job Long Term Projections Data.csv");
 //var womenPromise = ;
 //Load in national minorites' employment data
 //var minoritiesPromise = ;
-var popPromise = d3.csv("data/AlabamaPopulationData.csv"); //reduced the amount of data by A LOT
+var popPromise = d3.csv("data/converted.csv"); //reduced the amount of data by A LOT
 Promise.all([mapPromise,popPromise,csShortTermPromise,csLongTermPromise]).then(function(values)
 {
     var join = function()
@@ -123,6 +123,8 @@ var setup = function(mapData) // setup deals with svg size, projection
     //long term color range
     var colorLongTerm = d3.scaleQuantize()
     .range(["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"])
+    //hovers for divs
+    //d3.select()
 }   
 
 //draw pathgenerator and d3 core algorithm
@@ -136,7 +138,7 @@ var drawMap = function() // this may be needed for added animations to the graph
 popPromise.then(function(popData)
 {
     console.log("state population data working",popData);
-    //getData(popData);
+    getData(popData);
 },
 function(err){console.log("ERROR in popPromise",err)})
 
@@ -151,23 +153,23 @@ csLongTermPromise.then(function(longTermData)
     console.log("long term data working",longTermData);
 },
 function(err){console.log("ERROR in csLongTermPromise",err)})
-//MAKE A JOIN FUNCTION
 
 
 var getData = function(popData)
 {
-    //do i still need the states array or this getData function
-    states = [{name: "Alabama", total: [], male: [], female: [], both: [], white: [], black: [], asian: [], multiracial: []}] //each array within each state object will need to be summed; I will also have to copy paste the Alabama object for each state
+    //each array within each state object will need to be summed; I will also have to copy paste the Alabama object for each state
+    states = [{name: "Alabama", total: [], male: [], female: [], both: [], white: [], black: [], asian: [], multiracial: []}] 
     popData.forEach(function(d)
-    {
-        if(d.AGE == 40) //this is the average age of CS professionals according to https://datausa.io/profile/cip/computer-science-6
-            {
+    {            
                 totalAccumulator = 0;
     
                 if(d.RACE < 7)
-                    {totalAccumulator += d.POPESTIMATE2017; console.log("states",states);console.log("totalAccumulator", totalAccumulator);}
+                    {totalAccumulator += d.POPESTIMATE2017;
+                     console.log("totalAccumulator", totalAccumulator);
+                     states[d.STATE-1].total.push(totalAccumulator);
+                    }
                 if(d.SEX == 0)//both sexes
-                    {states[d.STATE-1].both.push(d.POPESTIMATE2017)} //console log what each of these are
+                    {states[d.STATE-1].both.push(d.POPESTIMATE2017)} 
                 if(d.SEX == 1)//male
                     {states[d.STATE-1].male.push(d.POPESTIMATE2017)}
                 if(d.SEX == 2)//female
@@ -179,8 +181,8 @@ var getData = function(popData)
                 if(d.RACE == 4)//asian
                     {states[d.STATE-1].asian.push(d.POPESTIMATE2017)} 
                 if(d.RACE == 6) //two or more races;
-                    {states[d.STATE-1].multiracial.push(d.POPESTIMATE2017)} //nothing is being pushed. Maybe bc problem with asian if statement
-            }
+                    {states[d.STATE-1].multiracial.push(d.POPESTIMATE2017)} 
+            
     }) ;
     console.log(states);
 }
