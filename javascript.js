@@ -143,7 +143,7 @@ var setup = function(mapData,shortTermData,longTermData) // setup deals with svg
             else
                {return 0}
             })])
-    
+    console.log(colorShortTerm(mapData.features[1].shortTermData.PercentChange))
 //    //long term color range
 //    var colorLongTerm = d3.scaleQuantize()
 //    .range(["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"])
@@ -169,21 +169,22 @@ var setup = function(mapData,shortTermData,longTermData) // setup deals with svg
     //draw choropleth for each state
     svg.selectAll("path")
     .data(mapData.features)
-    .enter()
-    .append("path")
+    
+    
     .attr("d", path)
     .style("fill", function (d)
         {
             //Get data value    
-            var value = d.properties.PercentChange;
+            var value = d.shortTerm
             if (value)
-                {return color(value)}
-            else {return "#ccc"}
+                {return colorShortTerm(value.PercentChange)}
+            else {return "red"}
         })
+    
     
     //what should I be selecting to get data for hover on each state?
     svg.select("path")
-    .data(mapData)
+    .data(mapData.features)
     .on("mouseover", function(d)
         {
         var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.bandwidth() / 2;
