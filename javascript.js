@@ -34,27 +34,41 @@ Promise.all([mapPromise,popPromise,csShortTermPromise,csLongTermPromise]).then(f
         //join short term data to map and population
         values[2].forEach(function(e3) //this function isn't doing anything for some reason
         {
-            hash[e3.AreaName].shortTermData = e3;
-            //console.log("hash",hash)
+            if(hash[e3.AreaName])
+                {
+                hash[e3.AreaName].shortTermData = e3;
+                //console.log("hash",hash)   
+                }
+            else
+            {
+                console.log("shortTermData mismatched", e3.AreaName)
+            }
+            
         })
         //join long term data to map and population and short term data
         values[3].forEach(function(e4)
         {
-            hash[e4.AreaName].longTermData = e4;//FIX ME throwing error, but working?
-            //console.log("AreaName2", e4.AreaName)
-            //console.log("hash",hash)
+            if(hash[e4.AreaName])
+                {
+                hash[e4.AreaName].longTermData = e4;//FIX ME throwing error, but working?
+                //console.log("AreaName2", e4.AreaName)
+                //console.log("hash",hash)
+                }
+            else
+                {//console.log("longTermData mismatched", e4.AreaName)
+                }
         })
     } 
     //getData(values[1]); //work on this for the portfolio project but not for the class
     join();
-    setup(mapData); //why isn't this working
+    setup(values[0], values[2],values[3]); 
 },
 function(err){console.log("ERROR in Promise.all",err)})
 
-mapPromise.then(function(mapData)
+/*mapPromise.then(function(mapData)
 {
     console.log("map data working",mapData); 
-    setup(mapData); //don't load the map until the data is linked
+    //setup(mapData); //don't load the map until the data is linked
 },
 function(err)
 {
@@ -64,7 +78,7 @@ function(err)
 popPromise.then(function(popData)
 {
     console.log("state population data working",popData);
-    getData(popData);
+    //getData(popData);
 },
 function(err){console.log("ERROR in popPromise",err)})
 
@@ -79,9 +93,9 @@ csLongTermPromise.then(function(longTermData)
     console.log("long term data working",longTermData);
 },
 function(err){console.log("ERROR in csLongTermPromise",err)})
-
+*/
 var screen = {width:1920, height:1080};
-var setup = function(mapData) // setup deals with svg size, projection 
+var setup = function(mapData,shortTermData,longTermData) // setup deals with svg size, projection 
 {
     var width = 1900;
     var height = 800;
@@ -105,15 +119,54 @@ var setup = function(mapData) // setup deals with svg size, projection
     .attr("d",path)
     
     //sets up short term choropleth colors
+    //console.log("short term",mapData.features)
+    
     var colorShortTerm = d3.scaleQuantize()
     .range(["rgb(237,248,233)","rgb(186,228,179)","rgb(116,196,118)","rgb(49,163,84)","rgb(0,109,44)"])
-    .domain([0, d3.max(shortTermData, function(d){return d.PercentChange})]) //"VALUE" in Murray IS WHATEVER NUMBER IS FED FROM DATA TO MAP
+    .domain([d3.min(mapData.features, function(d)
+            {
+        
+            if(d.shortTermData)
+            {
+                //console.log("d",d);
+                return d.shortTermData.PercentChange
+            }
+            else
+               {return 0}
+            }),
+            d3.max(mapData.features, function(d)
+            {
+            if(d.shortTermData)
+            {
+                return d.shortTermData.PercentChange
+            }
+            else
+               {return 0}
+            })])
     
-    //long term color range
-    var colorLongTerm = d3.scaleQuantize()
-    .range(["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"])
-    .domain([0, d3.max(longTermData, function(d){return d.PercentChange})])
-    
+//    //long term color range
+//    var colorLongTerm = d3.scaleQuantize()
+//    .range(["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"])
+//    .domain([d3.min(mapData.features, function(d)
+//            {
+//            if(d != 0){
+//                    return d.longTermData.PercentChange
+//                }
+//            else
+//               {return 0}
+//            }),
+//            d3.max(mapData.features, function(d)
+//            {
+//            if(d != 0){
+//                    return d.longTermData.PercentChange
+//                }
+//            else
+//               {return 0}
+//            })
+                
+                    
+                
+    //draw choropleth for each state
     svg.selectAll("path")
     .data(mapData.features)
     .enter()
@@ -146,7 +199,7 @@ var setup = function(mapData) // setup deals with svg size, projection
         d3.select("#tooltip").classed("hidden", false);
         })
     
-    //hovers for divs; FIX ME
+    //hovers for divs; FIX ME; do this in another spot?
     d3.selectAll(".content ul").on("mouseover", function()
     {
         d3.selectAll(".content ul").classed("hidden", false)
