@@ -45,7 +45,7 @@ Promise.all([mapPromise,popPromise,csShortTermPromise,csLongTermPromise]).then(f
             //console.log("hash",hash)
         })
     } 
-    getData(values[1]);
+    //getData(values[1]); //work on this for the portfolio project but not for the class
     join();
     setup(mapData); //why isn't this working
 },
