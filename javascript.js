@@ -94,13 +94,13 @@ csLongTermPromise.then(function(longTermData)
 },
 function(err){console.log("ERROR in csLongTermPromise",err)})
 */
-var screen = {width:1920, height:1080};
+var screen = {width:1920, height:600};
 var setup = function(mapData,shortTermData,longTermData) // setup deals with svg size, projection 
 {
-    var width = 1900;
-    var height = 800;
+    var width = 1920;
+    var height = 600;
     //Define projection
-    var projection = d3.geoAlbersUsa().translate([width/2,height/2]).scale([1000]);
+    var projection = d3.geoAlbersUsa().translate([width/2,height/2]).scale([1300]);
     //console.log("projection",projection)
     
     //make svg
@@ -192,6 +192,20 @@ var setup = function(mapData,shortTermData,longTermData) // setup deals with svg
         d3.selectAll(".national ul").classed("hidden", true)
     })
     
+    //make legend
+    var legend = d3.select("#legend")
+        .append("ul").attr("class", "list-inline")
+    var key = legend.selectAll("li.key")
+    .data(colorShortTerm.range())
+    .enter()
+    .append("li")
+    .attr("class","key")
+    .style("border-top-color", String)
+    .text(function(message)
+        {
+            var r = colorShortTerm.invertExtent(message);
+            return formats.percent(r[0])
+        })
     //what should I be selecting to get data for hover on each state?
     svg.select("path")
     .data(mapData.features)
