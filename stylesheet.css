@@ -21,10 +21,7 @@ body
     border: 2px solid black;
     padding: 8px;
     font-size:16px;
-}
-.national
-{
-    
+    background-color: aliceblue;
 }
 #tooltip
 {
@@ -40,6 +37,7 @@ body
 .hidden
 {
     display: none;
+    color: aliceblue;
 }
 #tooltip p
 {

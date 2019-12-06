@@ -175,12 +175,22 @@ var setup = function(mapData,shortTermData,longTermData) // setup deals with svg
     .style("fill", function (d)
         {
             //Get data value    
-            var value = d.shortTerm
+            var value = d.shortTermData
+            console.log("value", value)
             if (value)
                 {return colorShortTerm(value.PercentChange)}
-            else {return "red"}
+            else {return "grey"}
         })
-    
+    .style("stroke", "black")
+    //hovers for divs
+    .selectAll(".national").on("mouseover", function()
+    {
+        d3.select(".national ul").classed("hidden", false)
+    })
+    d3.selectAll(".national").on("mouseout", function()
+    {
+        d3.selectAll(".national ul").classed("hidden", true)
+    })
     
     //what should I be selecting to get data for hover on each state?
     svg.select("path")
@@ -200,15 +210,7 @@ var setup = function(mapData,shortTermData,longTermData) // setup deals with svg
         d3.select("#tooltip").classed("hidden", false);
         })
     
-    //hovers for divs; FIX ME; do this in another spot?
-    d3.selectAll(".content ul").on("mouseover", function()
-    {
-        d3.selectAll(".content ul").classed("hidden", false)
-    })
-    d3.selectAll(".content ul").on("mouseout", function()
-    {
-        d3.selectAll(".content ul").classed("hidden", true)
-    })
+    
 }   
 
 //draw pathgenerator and d3 core algorithm
