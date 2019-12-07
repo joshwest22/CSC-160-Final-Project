@@ -183,13 +183,13 @@ var setup1 = function(mapData,shortTermData) // setup deals with svg size, proje
     .attr("d", path)
     .on("mouseover", function(d)
         {
-        var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.bandwidth() / 2; //figure out what xScale should be changed to
-        var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + height / 2; //does height need to change
+        var xPosition = 75;//parseFloat(d3.select(this).attr("x")) + 1000 //figure out what xScale should be changed to
+        var yPosition = 55;//parseFloat(d3.select(this).attr("y")) //does height need to change
 
         //update the tooltip
         d3.select("#tooltip")
-        .style("left", xPosition + "px")
-        .style("top", yPosition + "px")
+        .style("left", xPosition + "%")
+        .style("top", yPosition + "%")
         .select("#value")
         .text(d.shortTermData.AreaName + ": " + d.shortTermData.PercentChange)
         //show the tool tip
@@ -246,6 +246,8 @@ var setup2 = function(mapData,longTermData)
             else
                {return 0}
             })])
+    //animation
+    //svg.selectAll("path").transition().attr("d",path).attr("opacity",)
     //draw choropleth for each state
     svg.selectAll("path")
     .data(mapData.features)
