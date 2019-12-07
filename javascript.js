@@ -143,7 +143,7 @@ var setup = function(mapData,shortTermData,longTermData) // setup deals with svg
             else
                {return 0}
             })])
-    console.log(colorShortTerm(mapData.features[1].shortTermData.PercentChange))
+    //console.log(colorShortTerm(mapData.features[1].shortTermData.PercentChange))
 //    //long term color range
 //    var colorLongTerm = d3.scaleQuantize()
 //    .range(["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"])
@@ -219,7 +219,7 @@ var setup = function(mapData,shortTermData,longTermData) // setup deals with svg
         .style("left", xPosition + "px")
         .style("top", yPosition + "px")
         .select("#value")
-        .text(d)
+        .text(d.AreaName + ": " + d.shortTermData.PercentChange)
         //show the tool tip
         d3.select("#tooltip").classed("hidden", false);
         })
