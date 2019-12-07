@@ -2,10 +2,6 @@ body
 {
     background-color: azure;
 }
-.svg
-{
-    margin-top: 5%;
-}
 #title
 {
     text-align: center;
@@ -28,6 +24,8 @@ body
     padding: 8px;
     font-size:16px;
     background-color: aliceblue;
+    max-width: 640px;
+    margin-left: 14px;
 }
 .button
 {
@@ -38,15 +36,18 @@ body
     padding: 8px;
     font-size:20px;
     float:left;
+    border-radius: 25px;
      
 }
 #stButton
 {
     background-color: rgb(0,109,44);
+    border-color: #003F00;
 }
 #ltButton
 {
     background-color: #08519c;
+    border-color: navy;
 }
 #tooltip
 {
@@ -62,7 +63,14 @@ body
 .hidden
 {
     display: none;
-    color: aliceblue;
+}
+#tooltip.hidden
+{
+    display:none;
+}
+.shown
+{
+
 }
 #tooltip p
 {
@@ -70,16 +78,4 @@ body
     font-family: sans-serif;
     font-size: 16px;
     line-height: 20px;
-}
-#legend {
-    padding: 1.5em 0 0 1.5em;
-}
-
-li.key {
-    border-top-width: 15px;
-    border-top-style: solid;
-    font-size: .75em;
-    width: 10%;
-    padding-left: 0;
-    padding-right: 0;
 }

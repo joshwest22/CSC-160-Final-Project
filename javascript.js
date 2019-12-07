@@ -61,7 +61,11 @@ Promise.all([mapPromise,popPromise,csShortTermPromise,csLongTermPromise]).then(f
     } 
     //getData(values[1]); //work on this for the portfolio project but not for the class
     join();
-    setup(values[0], values[2],values[3]); 
+    //draw short term map by default
+    setup1(values[0],values[2]);
+    //allow buttons to switch maps
+    d3.select("#stButton").on("click", function(){console.log("stButton clicked");setup1(values[0], values[2])});
+    d3.select("#ltButton").on("click", function(){console.log("ltButton clicked");setup2(values[0], values[3])});
 },
 function(err){console.log("ERROR in Promise.all",err)})
 
@@ -95,7 +99,7 @@ csLongTermPromise.then(function(longTermData)
 function(err){console.log("ERROR in csLongTermPromise",err)})
 */
 var screen = {width:1920, height:600};
-var setup = function(mapData,shortTermData,longTermData) // setup deals with svg size, projection 
+var setup1 = function(mapData,shortTermData) // setup deals with svg size, projection 
 {
     var width = 1920;
     var height = 600;
@@ -144,95 +148,129 @@ var setup = function(mapData,shortTermData,longTermData) // setup deals with svg
                {return 0}
             })])
     //console.log(colorShortTerm(mapData.features[1].shortTermData.PercentChange))
-//    //long term color range
-//    var colorLongTerm = d3.scaleQuantize()
-//    .range(["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"])
-//    .domain([d3.min(mapData.features, function(d)
-//            {
-//            if(d != 0){
-//                    return d.longTermData.PercentChange
-//                }
-//            else
-//               {return 0}
-//            }),
-//            d3.max(mapData.features, function(d)
-//            {
-//            if(d != 0){
-//                    return d.longTermData.PercentChange
-//                }
-//            else
-//               {return 0}
-//            })
-                
-                    
-                
+              
     //draw choropleth for each state
     svg.selectAll("path")
     .data(mapData.features)
-    
-    
     .attr("d", path)
     .style("fill", function (d)
         {
             //Get data value    
             var value = d.shortTermData
-            console.log("value", value)
+            //console.log("value", value)
             if (value)
                 {return colorShortTerm(value.PercentChange)}
             else {return "grey"}
         })
     .style("stroke", "black")
-    //hovers for divs
-    .selectAll(".national").on("mouseover", function()
+    .style("stroke-width","2.5")
+    
+    //hover for infoPanel
+    d3.selectAll(".national").on("mouseover", function()
     {
-        d3.select(".national ul").classed("hidden", false)
+        d3.selectAll(".national ul").attr("class","shown")
     })
     d3.selectAll(".national").on("mouseout", function()
     {
-        d3.selectAll(".national ul").classed("hidden", true)
+        d3.selectAll(".national ul").attr("class", "hidden")
     })
     
     //make legend
-    var legend = d3.select("#legend")
-        .append("ul").attr("class", "list-inline")
-    var key = legend.selectAll("li.key")
-    .data(colorShortTerm.range())
-    .enter()
-    .append("li")
-    .attr("class","key")
-    .style("border-top-color", String)
-    .text(function(message)
-        {
-            var r = colorShortTerm.invertExtent(message);
-            return formats.percent(r[0])
-        })
-    //what should I be selecting to get data for hover on each state?
-    svg.select("path")
+    
+    //tooltip
+    svg.selectAll("path")
     .data(mapData.features)
+    .attr("d", path)
     .on("mouseover", function(d)
         {
-        var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.bandwidth() / 2;
-        var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + height / 2;
+        var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.bandwidth() / 2; //figure out what xScale should be changed to
+        var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + height / 2; //does height need to change
 
         //update the tooltip
         d3.select("#tooltip")
         .style("left", xPosition + "px")
         .style("top", yPosition + "px")
         .select("#value")
-        .text(d.AreaName + ": " + d.shortTermData.PercentChange)
+        .text(d.shortTermData.AreaName + ": " + d.shortTermData.PercentChange)
         //show the tool tip
         d3.select("#tooltip").classed("hidden", false);
+        })
+    .on("mouseout",function()
+        {
+        d3.select("#tooltip").classed("hidden", true);
         })
     
     
 }   
 
-//draw pathgenerator and d3 core algorithm
-var drawMap = function() // this may be needed for added animations to the graph
+var setup2 = function(mapData,longTermData)
 {
-    //d3 core algorithm; selectall the paths and rebind the data then animate
-    //short term color range
+    var width = 1920;
+    var height = 600;
+    //Define projection
+    var projection = d3.geoAlbersUsa().translate([width/2,height/2]).scale([1300]);
+    //console.log("projection",projection)
     
+    //make svg
+    var svg = d3.select("svg")
+    .attr("width",screen.width)
+    .attr("height",screen.height)
+    //Bind data and create one path per GeoJSON feature
+    
+    //Defines path generator, using the albers USA projection
+    var path = d3.geoPath(projection);
+    
+    svg.selectAll("path")
+    .data(mapData.features)
+    .enter()
+    .append("path")
+    .attr("d",path)
+    
+    //long term color range
+    var colorLongTerm = d3.scaleQuantize()
+    .range(["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"])
+    .domain([d3.min(mapData.features, function(d)
+            {
+            console.log("d",d)
+            if(d != 0){
+                    return d.longTermData.PercentChange
+                }
+            else
+               {return 0}
+            }),
+            d3.max(mapData.features, function(d)
+            {
+            if(d != 0){
+                    return d.longTermData.PercentChange
+                }
+            else
+               {return 0}
+            })])
+    //draw choropleth for each state
+    svg.selectAll("path")
+    .data(mapData.features)
+    .attr("d", path)
+    .style("fill", function (d)
+        {
+            //Get data value    
+            var value = d.longTermData
+            //console.log("value", value)
+            if (value)
+                {return colorLongTerm(value.PercentChange)}
+            else {return "grey"}
+        })
+    .style("stroke", "black")
+    .style("stroke-width","2.5")
+    
+    //hover for infoPanel
+    d3.selectAll(".national").on("mouseover", function()
+    {
+        d3.selectAll(".national ul").attr("class","shown")
+    })
+    d3.selectAll(".national").on("mouseout", function()
+    {
+        d3.selectAll(".national ul").attr("class", "hidden")
+    })
 }
 /*********************************************************************************************************************************/
 
